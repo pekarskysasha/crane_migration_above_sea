@@ -20,4 +20,11 @@ ________________________________________________________________________________
  (4) MigrationAnalysis_stage4_MBoutLevel (MATLAB script): 
  The script is used for migration analysis for the migration bout level
  
- (6) annotate weather and height above ground XX-add the details-XX
+ (5) annotate weather and height above ground XX-add the details-XX
+ 
+ (6) TripLevelNJ  (R script): 
+ statistical analysis and figure preparation for the entire trip level (adults only - exluding fist and second year juveniles)
+ 
+ (7) TripLevelNJ  (R script): 
+ statistical analysis and figure preparation for the migration bout level
+
