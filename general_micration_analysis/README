@@ -1,0 +1,23 @@
+Scrips (Matlab) for analysis of general migration patterns of all indeviduals 
+The scripts are used for cleaning, subsamling to 1 hour interval and analysis of general migration 
+____________________________________________________________________________________________________________________________
+ (1) MigrationAnalysis_stage1_resample_and_recordStartEnd (MATLAB script): 
+ The script is used for 
+ (a) cleaning of the data 
+ (b) devision into days (sunrise to sunset)
+ (c) subsamling to 1 hour interval
+ (d) defining start and end of migration
+ 
+ (2) MigrationAnalysis_stage2_add_speed_migrationBouts_sunrise (MATLAB script): 
+ The script is used for 
+ (a) claculation of ground speed on the subsampled data
+ (b) calculation of migratory bouts (section of migratory movements)
+ (c) calculation of dark/light for the subsampled data
+ 
+ (3) MigrationAnalysis_stage3_TripLevel (MATLAB script): 
+ The script is used for migration analysis for the enture trip level
+ 
+ (4) MigrationAnalysis_stage4_MBoutLevel (MATLAB script): 
+ The script is used for migration analysis for the migration bout level
+ 
+ (6) annotate weather and height above ground XX-add the details-XX
