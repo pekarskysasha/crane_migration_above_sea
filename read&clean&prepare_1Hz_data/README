@@ -28,7 +28,12 @@ Used for adding the ECMWF weather data
 (5) anotate2files (MATLAB script) XX-DAVID STILL NEEDS TO PROVIDE IT-XX: 
 Used to annotate all the 1HZ data applying the annotateTrack function
 
-(6) Merge XX-add the details-XX
-(7) Add flap rate XX-add the details-XX
+(7) add_running_flap_rate_1Hz (MATLAB script):
+Used to add running flap rate based on 1Hz acceleration data 
+
+(6) merge_with_updated_1Hz (MATLAB script):
+Used to merge the updated databese to create final files per indeviduals
+
+
 
 ** The scripts can be used both for creating the files for the first time and for updating existing files by adding new data collected
