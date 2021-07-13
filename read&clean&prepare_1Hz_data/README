@@ -37,6 +37,4 @@ Used to add calculation of dark/light hours for the data
 (9) merge_with_updated_1Hz (MATLAB script):
 Used to merge the updated databese to create final files per indeviduals
 
-
-
 ** The scripts can be used both for creating the files for the first time and for updating existing files by adding new data collected
