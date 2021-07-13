@@ -2,17 +2,23 @@ Scrips for preparing indentification and analysis of soaring-gliding behavior (M
 ____________________________________________________________________________________________________________________________
 
 (1) circling_gliding_analysis (MATLAB script):
-The script is used to run the functions indentifing the circling-gliding thermal soaring using various functions
+The script is used to run the functions identifying the circling-gliding thermal soaring using various functions
     (a) FindSoaringCircling1 (MATLAB function): XX-NIR IS WORKING ON IT, new name needed-XX: 
-        Circling soaring indentification 
+        Circling soaring identification 
     (b) FindGlide1 (MATLAB function): XX-NIR IS WORKING ON IT, new name needed-XX: 
-        Gliding phase of the soaring. More than one gliding might be indentified for each soaring  event
+        Gliding phase of the soaring. More than one gliding might be identified for each soaring  event
     (c) OrganiseThermalTable & AddInfoToThermalTable (MATLAB functions):
-        Collecting stats for the cicling part of thermal soaring. 
+        Collecting stats for the cycling part of thermal soaring. 
     (d)  SoarGlide_phases (MATLAB function):
-        The function is used to alocate gliding phase to thermal cicling **
+         The function is used to allocate gliding phase to thermal cycling **
     (e) equal_interval_thermal (MATLAB function):
-          The function is used to to devide the data into 10 minute sections and calculate thermal activity (or lack of it) in these equal time sections
-    
-    
-    **Not for every circling phase a corresponding gliding is found. 
+        The function is used to divide the data into 10 minute sections and calculate thermal activity (or lack of it) in these equal time sections
+    (f) AnalyseFlapRate (MATLAB function):
+        The function used to divide the time in soaring and between soaring (glide phases are not considered here) into 10 second sections. 
+        Flap rate and elevation above terrain is calculated for each section 
+    (g) AnalyseFlapRateNoSoar (MATLAB function):
+        The function used to create comparable file at areas where no thermals occur. 
+        (g.1) random 5 minutes indexes generated as a proxy to thermal circling.
+        (g.2) “gliding” of fixed length (10 min.) is divided into 10 sec. intervals and analyzed.
+
+**Not for every circling phase a corresponding gliding is found. 
