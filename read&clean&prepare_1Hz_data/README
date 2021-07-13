@@ -1,5 +1,5 @@
 Scrips (Matlab) for preparing high resolution data (1Hz segments) for analysis **
-The scripts are used for reading GPS and sensor data and adiing relevant fields needed for analysis of circling-gliding vs. flapping flight
+The scripts are used for reading GPS and sensor data and adding relevant fields needed for analysis of circling-gliding vs. flapping flight
 ____________________________________________________________________________________________________________________________
 
 (1) find_1Hz_sections (MATLAB script): 
@@ -7,20 +7,20 @@ The script used for locating in the data the 1 Hz sections and preparing the raw
 * At the end of the script a table is created in order to download relevant data from ornitela website
 
 (2) load_1Hz_GPSSensor_data (MATLAB script): 
-The script used for loading the GPS and sensor data from CSV files downloaded from ornitela website
+The script used for loading the GPS and sensor data from CSV files downloaded from Ornitela website.
 
 clean_prepare_1Hz_GPSSensor_data (MATLAB script): 
 The script used for cleaning creating the 1Hz data
-(a) A GPS dataset created with comtinious time.
-Missing 1Hz is calculated based on the 10Hz burst data to make the series full (1Hz secnsor data is not recorded once 10Hz burst is recorded)
+(a) A GPS dataset created with continuous time.
+Missing 1Hz is calculated based on the 10Hz burst data to make the series full (1Hz sensor data is not recorded once 10Hz burst is recorded)
 Missing GPS data is left as nan
 (b) A Sensor burst (10Hz) database created with section indexes matching the sections in the GPS dataset
-(c) The 1Hz sections are clened to include only contnious sections of > 10 min
+(c) The 1Hz sections are cleaned to include only continuous sections of > 10 min
 
 (3) add_1HZ_interpolated_fields (MATLAB script): 
-The script used for for adding for adding 
-(a) Interpolated latitide and longtitute as well as x y and elevetion above msl fields
-(b) Elevation abobe terrein and terrain elevation downloaded using movebank Env-Data
+The script used for adding for adding 
+(a) Interpolated latitude and longitude as well as x y and elevation above msl fields
+(b) Elevation above terrain and terrain elevation downloaded using movebank Env-Data
 
 (4) annotateTrack (MATLAB function): 
 Used for adding the ECMWF weather data
@@ -35,6 +35,6 @@ Used to add running flap rate based on 1Hz acceleration data
 Used to add calculation of dark/light hours for the data
 
 (9) merge_with_updated_1Hz (MATLAB script):
-Used to merge the updated databese to create final files per indeviduals
+Used to merge the updated database to create final files per individuals
 
 ** The scripts can be used both for creating the files for the first time and for updating existing files by adding new data collected
