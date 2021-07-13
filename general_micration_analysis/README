@@ -20,11 +20,16 @@ ________________________________________________________________________________
  (4) MigrationAnalysis_stage4_MBoutLevel (MATLAB script): 
  The script is used for migration analysis for the migration bout level
  
- (5) annotate weather and height above ground XX-add the details-XX
+ (5) MigrationAnalysis_Stage5_AddElevation (MATLAB script):
+ The script is used to to calculate elevation above ground. 
+ For e-obs tags first the geoid undulation value was substracted from the altitude above the ellipsoid to get ASL.
+ Env-Data anotated DEM was then substracted from ASL.
  
- (6) TripLevelNJ  (R script): 
- statistical analysis and figure preparation for the entire trip level (adults only - exluding fist and second year juveniles)
+ (6) annotate weather XX-add the details-XX
  
  (7) TripLevelNJ  (R script): 
+ statistical analysis and figure preparation for the entire trip level (adults only - exluding fist and second year juveniles)
+ 
+ (8) TripLevelNJ  (R script): 
  statistical analysis and figure preparation for the migration bout level
 
