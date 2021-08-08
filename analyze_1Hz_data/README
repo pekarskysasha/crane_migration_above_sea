@@ -3,14 +3,15 @@ ________________________________________________________________________________
 
 (1) circling_gliding_analysis (MATLAB script):
 The script is used to run the functions identifying the circling-gliding thermal soaring using various functions
-    (a) FindSoaringCircling1 (MATLAB function): XX-NIR IS WORKING ON IT, new name needed-XX: 
-        Circling soaring identification 
-    (b) FindGlide1 (MATLAB function): XX-NIR IS WORKING ON IT, new name needed-XX: 
-        Gliding phase of the soaring. More than one gliding might be identified for each soaring  event
-    (c) OrganiseThermalTable & AddInfoToThermalTable (MATLAB functions):
+    (a) FindSoarAndGlide (MATLAB function): 
+        (a.1) Circling soaring identification 
+        (a.2) gliding indetification if the gliding phase fs no more than 60 s after soaring is finished **
+    (b) OrganiseThermalTable & AddInfoToThermalTable (MATLAB functions):
         Collecting stats for the cycling part of thermal soaring. 
-    (d)  SoarGlide_phases (MATLAB function):
-         The function is used to allocate gliding phase to thermal cycling **
+    (c) WindCalcultedThermals (MATLAB functions):
+        The function is used to calculate wind direction and speed from the horizontal displacement of thermals
+    (d) SoarGlide_phases (MATLAB function):
+        The function is used calculate statistics of soaring-gliding sequences
     (e) equal_interval_thermal (MATLAB function):
         The function is used to divide the data into 10 minute sections and calculate thermal activity (or lack of it) in these equal time sections
     (f) AnalyseFlapRate (MATLAB function):
@@ -21,4 +22,5 @@ The script is used to run the functions identifying the circling-gliding thermal
         (g.1) random 5 minutes indexes generated as a proxy to thermal circling.
         (g.2) “gliding” of fixed length (10 min.) is divided into 10 sec. intervals and analyzed.
 
-**Not for every circling phase a corresponding gliding is found. 
+**Not for every circling phase a corresponding gliding is found.
+
