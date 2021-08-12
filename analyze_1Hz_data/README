@@ -2,7 +2,7 @@ Scrips for preparing indentification and analysis of soaring-gliding behavior (M
 ____________________________________________________________________________________________________________________________
 
 (1) circling_gliding_analysis (MATLAB script):
-The script is used to run the functions identifying the circling-gliding thermal soaring using various functions
+    The script is used to run the functions identifying the circling-gliding thermal soaring using various functions
     (a) FindSoarAndGlide (MATLAB function): 
         (a.1) Circling soaring identification 
         (a.2) gliding indetification if the gliding phase fs no more than 60 s after soaring is finished **
@@ -22,9 +22,9 @@ The script is used to run the functions identifying the circling-gliding thermal
         (g.1) random 5 minutes indexes generated as a proxy to thermal circling.
         (g.2) “gliding” of fixed length (10 min.) is divided into 10 sec. intervals and analyzed.
  (2) Prepare4TimescaleAnalysis (MATLAB script):
-The script creates four day time-scales (-3,-2,-1,0,1) for departure, sea entrance and in sea locations. 
-It is created check the change in environmental variables crane experience prior leaving to migration.
-Calculated just for days cranes were actually present at the stopover sites
+    The script creates four day time-scales (-3,-2,-1,0,1) for departure, sea entrance and in sea locations. 
+    It is created check the change in environmental variables crane experience prior leaving to migration.
+    Calculated just for days cranes were actually present at the stopover sites
 
 **Not for every circling phase a corresponding gliding is found.
 
