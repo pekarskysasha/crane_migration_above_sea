@@ -21,6 +21,10 @@ The script is used to run the functions identifying the circling-gliding thermal
         The function used to create comparable file at areas where no thermals occur. 
         (g.1) random 5 minutes indexes generated as a proxy to thermal circling.
         (g.2) “gliding” of fixed length (10 min.) is divided into 10 sec. intervals and analyzed.
+ (2) Prepare4TimescaleAnalysis (MATLAB script):
+The script creates four day time-scales (-3,-2,-1,0,1) for departure, sea entrance and in sea locations. 
+It is created check the change in environmental variables crane experience prior leaving to migration.
+Calculated just for days cranes were actually present at the stopover sites
 
 **Not for every circling phase a corresponding gliding is found.
 
