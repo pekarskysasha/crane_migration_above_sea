@@ -25,7 +25,7 @@ The script used for adding for adding
 (4) annotateTrack (MATLAB function): 
 Used for adding the ECMWF weather data
 
-(5) anotate2files (MATLAB script) XX-DAVID STILL NEEDS TO PROVIDE IT-XX: 
+(5) makeAnnotatedCraneFiles (MATLAB script):
 Used to annotate all the 1HZ data applying the annotateTrack function
 
 (7) add_running_flap_rate_1Hz (MATLAB script):
