@@ -29,7 +29,7 @@ Used for adding the ECMWF weather data
 Used to annotate all the 1HZ data applying the annotateTrack function
 
 (7) add_running_flap_rate_1Hz (MATLAB script):
-Used to add running flap rate based on 1Hz acceleration data 
+Used to add running flap rate based on 1Hz acceleration data using FlapFromAcc.m function
 
 (8) add_time_of_day (MATLAB script):
 Used to add calculation of dark/light hours for the data
