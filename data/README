@@ -1,2 +1,8 @@
 Contains final data used for the analysis
-FinalTracks.zip: 
+
+(1)	1HzGPS_and_ACC_annotated files:
+MAT files containing 1Hz data per individual crane annotated with environmental variables
+Every file name contains individual ID
+Some of the files divided into A and B due to file size considerations
+
+
