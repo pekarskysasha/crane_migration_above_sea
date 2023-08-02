@@ -20,6 +20,9 @@ Used for soaring&gliding_analysis&plot script.
 File containing data of annotated time scale data for Mediterranean sea crossing.
 Used for time_scales_analysis script.
 
+(6) ToEraze.csv
+File of events manualy marked as mistakes in the AnnotatedTimePointsMedSea file
+
 
 
 
