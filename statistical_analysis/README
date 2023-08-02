@@ -1,8 +1,13 @@
 Scrips (R) for statitical analysis of low and high resolution datasetes metrics
 ____________________________________________________________________________________________________________________________
 
-(1) soaring&gliding_plot&analyse.R
+(1) ThermalSections_analysis&plot.R
+Statitical analysis of 10 minte thermak sections with and without thermal activity
+Plotting of figure 2B
+
+(2) soaring&gliding_plot&analyse.R
 Statitical analysis of coupled soaring-gliding events.
-Plotting fig.
+Plotting figure 3A
+
 (2) time_scales_nalysis.R
-time-scales analysis and plotting of figure 4.A
+time-scales analysis and plotting of figure 4A
