@@ -3,6 +3,23 @@ Contains final data used for the analysis
 (1)	1HzGPS_and_ACC_annotated files:
 MAT files containing 1Hz data per individual crane annotated with environmental variables
 Every file name contains individual ID
-Some of the files divided into A and B due to file size considerations
+Some of the files divided into A and B due to file size considerations.
+
+(2) MigrationAnalysis_Stage4_BoutLevel 
+MAT file summarizing the sea crossing information per crane per year
+
+(3) TheramlStats.csv:
+file summarizing 10 minute sections with and without thermal activity.
+Used for ThermalSections_analysis&plot and time_scales_analysis scripts.
+
+(4) SoarGlide.csv:
+file summarizing coupled soaring-gliding events.
+Used for soaring&gliding_analysis&plot script.
+
+(5) AnnotatedTimePointsMedSea.csv 
+File containing data of annotated time scale data for Mediterranean sea crossing.
+Used for time_scales_analysis script.
+
+
 
 
