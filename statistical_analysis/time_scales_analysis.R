@@ -5,45 +5,119 @@ library(ggpubr)
 library(rstatix) # for outlier calculation
 library(lubridate) # extract year from date
 library(DescTools) # for Dunnett's Test
-## mediterranean sea cross ======================================================
-ThermalFroBox<-read.csv("AnnotatedTimePointsMedSea.csv")
-ThermalFroBox$Date <- as.Date(ThermalFroBox$Date, "%Y-%m-%d")
-#--- change to No-thermals events that were highlited manualy as mistake
+
+## MANUAL CORRECTION-- change to No-thermals events that were highlited manualy as mistake
 ToEraze<-read.csv("ToEraze.csv")
 TS<-read.csv("TheramlStats.csv")
-
 # - remove captivity bred
 TS <-TS[TS$Individual!=1891513,]
 TS <-TS[TS$Individual!=170602,]
-
 TS$date <- AsDateTime(TS$date,us.format = FALSE)
 TS$dateOnly <- as.Date(format(TS$date, "%Y-%m-%d"))
 ToEraze$TimeStart <- AsDateTime(ToEraze$TimeStart,us.format = FALSE)
 ToEraze$dateOnly <- as.Date(format(ToEraze$TimeStart, "%Y-%m-%d"))
 
-for (z in 1:nrow(ToEraze)) {
-  IND<-TS$Individual==ToEraze$Animal_ID[z] & TS$dateOnly==ToEraze$dateOnl[z]
-  temp<-TS[IND,]
-    if (sum(temp$percent_time_in_thermals>0 & temp$OverSea>0)==0) { # change to No-thermals
-      IND_ThermalFroBox <- ThermalFroBox$indev==ToEraze$Animal_ID[z] & ThermalFroBox$Date==ToEraze$dateOnly[z]
-      ThermalFroBox$thermap_presence[IND_ThermalFroBox]=0
-      }
-}
-#----------------------------------------------------------
-ThermalFroBox$thermap_presence<-factor(ThermalFroBox$thermap_presence,labels=c("No-thermals","thermals"))
+## days at stopover before crossing ======================================================
+W<-read.csv("TimesOfMigrationFall.csv")
+# - remove captivity bred
+W <-W[W$indev!=1891513,]
+W <-W[W$indev!=170602,]
+
+ddply(W, c("thermals"),summarise, 
+      mean = mean(Days_at_stopover),
+      median = median(Days_at_stopover),
+      SE=sd(Days_at_stopover) / sqrt(length(Days_at_stopover)),
+      SD=sd(Days_at_stopover),
+      t=qt(0.95/2 + 0.5, length(Days_at_stopover)-1),   # tend to 1.96 if sample size is big enough
+      CI=t*SE,
+      N=length(Days_at_stopover))
+
+
+library(ARTool) 
+m1 = art(Days_at_stopover ~ factor(thermals)  + (1|indev), data=W)
+anova(m1)
+
+
+ggplot(aes(x=factor(thermals), y=Days_at_stopover, fill=factor(thermals)),data=W) +
+  geom_boxplot(outlier.shape = NA,alpha = 0.9, colour = "black",fatten = 5)+
+  geom_point(alpha = 0.3, size=3, colour = "black",position=position_jitter(0.1))+
+  scale_color_manual(values=c("#c70428","#087d8a"))+
+  scale_fill_manual(values=c("#c70428","#087d8a"))+
+  labs(x="thermal presence", y = "Days at stopover")+
+  theme_bw()+
+  theme(axis.text.y = element_text(size=17),
+        axis.title.x=element_blank(),axis.title.y=element_text(size=15),axis.text.x = element_blank())
+
+## mediterranean sea cross ======================================================
+ThermalFroBox<-read.csv("AnnotatedTimePointsMedSea.csv")
+ThermalFroBox$Date <- as.Date(ThermalFroBox$Date, "%Y-%m-%d")
 ThermalFroBox$Fall_Spring <- factor(ThermalFroBox$fall,labels=c("fall"))
 ThermalFroBox$time_point <- factor(ThermalFroBox$time_point,labels=c("starting point","sea enter","in sea"))
-ThermalFroBox <- ThermalFroBox[ThermalFroBox$time_point!="sea enter",]
+ThermalFroBox <- ThermalFroBox[ThermalFroBox$time_point=="sea enter",]
+
+for (z in 1:nrow(ToEraze)) {
+  IND<-TS$Individual==ToEraze$Animal_ID[z] & TS$dateOnly==ToEraze$dateOnly[z]
+  temp<-TS[IND,]
+    if (sum(temp$percent_time_in_thermals>0 & temp$OverSea>0)==0) { # change to No-thermals
+      IND_ThermalFroBox <- ThermalFroBox$indev==ToEraze$Animal_ID[z] &
+             ThermalFroBox$Date==ToEraze$dateOnly[z]
+      if (sum(IND_ThermalFroBox) > 0) {
+      ThermalFroBox$thermap_presence[IND_ThermalFroBox]=0
+      print(paste0('crane ',ToEraze$Animal_ID[z],' on ',ToEraze$dateOnl[z],' was changed to no thermals'))
+      }
+    }
+}
+
+ThermalFroBox$thermap_presence<-factor(ThermalFroBox$thermap_presence,labels=c("No-thermals","thermals"))
+
+uniquqCraneDates1 <- unique(ThermalFroBox[, c("indev", "Date","thermap_presence")])
+for(t in 1:nrow(uniquqCraneDates1)){
+  IND<-TS$Individual==uniquqCraneDates1$indev[t] & TS$dateOnly==uniquqCraneDates1$Date[t]
+  temp<-TS[IND,]
+  number_of_theramsl_sect <- sum(temp$percent_time_in_thermals>0 & temp$OverSea>0)
+  number_of_theramsls <- sum(temp$number_of_thermals[temp$OverSea>0])
+  uniquqCraneDates1$number_of_theramsl_sect[t] <- number_of_theramsl_sect
+  uniquqCraneDates1$number_of_theramsls[t] <- number_of_theramsls
+}
+#----------------------------------------------------------
+
   
   
+# - remove  days the crane was not present at the stopover
+uniquqCraneDates <- unique(ThermalFroBox[, c("indev", "Date")])
+rm(ThermalFroBox1) 
+for (i in 1:nrow(uniquqCraneDates)) {
+  days_at_stopver <- W$Days_at_stopover[W$indev==uniquqCraneDates$indev[i] &
+                                          W$Date==uniquqCraneDates$Date[i]]
   
-a <- ddply(ThermalFroBox, c("Date","thermap_presence","time_point"),summarise, N    = length(sstdiff))
+  temp <- ThermalFroBox[ThermalFroBox$indev == uniquqCraneDates$indev[i] &
+                          ThermalFroBox$Date == uniquqCraneDates$Date[i],]
+  
+  if (days_at_stopver>2) {
+    temp=temp
+  } else if (days_at_stopver==2) {
+    temp=temp[1:4,]
+  }else if (days_at_stopver==1) {
+    temp=temp[1:3,]
+  }
+  
+  if(i==1){
+    ThermalFroBox1 <-temp
+  }else{
+    ThermalFroBox1 <-rbind(ThermalFroBox1,temp)
+  }
+  
+}
+
+ThermalFroBox <-  ThermalFroBox1
+ddply(ThermalFroBox, c('daysBack',"thermap_presence"),summarise, N= length(sstdiff))
+ddply(ThermalFroBox, c("Date","thermap_presence"),summarise, N    = length(sstdiff))
 
 temp=ThermalFroBox[ThermalFroBox$daysBack==0 & ThermalFroBox$time_point=="in sea",]
 ddply(temp, c("thermap_presence","Date"),summarise, N    = length(sstdiff))
 ddply(temp, c("thermap_presence"),summarise, N    = length(sstdiff))
 
-ThermalFroBox <- ThermalFroBox[ThermalFroBox$time_point=="in sea",]
+ThermalFroBox <- ThermalFroBox[ThermalFroBox$time_point="in sea"]
 ThermalFroBox %>%
   summarise_each(list(~sum(is.na(.)))) %>%
   gather()
@@ -52,9 +126,8 @@ ThermalFroBox <- ThermalFroBox %>%
   filter(!is.na(sstdiff))
 #== sample size:
 
-# No-thermals  15; over 9 different migration dates
-# thermals    25 ; over 17 different migration dates
-
+# No-thermals  15; over 9 diffrent migration dates
+# thermals    25 ; over 18 diffrent migration dates
 
 # precipitation
 
@@ -65,7 +138,7 @@ Means <- ddply(ThermalFroBox, c("daysBack","thermap_presence"),summarise,
                se=sd(GPCC)/length(GPCC))
 
 precip<- ggplot(Means, aes(daysBack, mean)) +
-  geom_line(aes(group = as.factor(thermap_presence),color = as.factor(thermap_presence)),size = 1)+
+  geom_line(aes(group = as.factor(thermap_presence),color = as.factor(thermap_presence)),linewidth = 1)+
   scale_color_manual(values=c("#c70428","#087d8a"))+
   geom_point()+
   geom_errorbar(
@@ -75,9 +148,6 @@ precip<- ggplot(Means, aes(daysBack, mean)) +
         panel.background = element_blank(), axis.line = element_line(colour = "grey50"))+
   ylab("Daily precipitation (mm/d)")+
   xlab("Number of timescales relative to departure")
-  
-
-
 
 
 # air temperature 
@@ -88,7 +158,7 @@ Means <- ddply(ThermalFroBox, c("daysBack","thermap_presence"),summarise,
                se=sd(t2m)/length(t2m))
 
  t_air<- ggplot(Means, aes(daysBack, mean)) +
-   geom_line(aes(group = as.factor(thermap_presence),color = as.factor(thermap_presence)),size = 1)+
+   geom_line(aes(group = as.factor(thermap_presence),color = as.factor(thermap_presence)),linewidth = 1)+
    scale_color_manual(values=c("#c70428","#087d8a"))+
    geom_point()+
    geom_errorbar(
@@ -108,7 +178,7 @@ Means <- ddply(ThermalFroBox, c("daysBack","thermap_presence"),summarise,
                se=sd(sstdiff)/length(sstdiff))
              
 delta_t <- ggplot(Means, aes(daysBack, mean)) +
-  geom_line(aes(group = as.factor(thermap_presence),color = as.factor(thermap_presence)),size = 1)+
+  geom_line(aes(group = as.factor(thermap_presence),color = as.factor(thermap_presence)),linewidth = 1)+
   scale_color_manual(values=c("#c70428","#087d8a"))+
   geom_point()+
   geom_errorbar(
@@ -132,7 +202,7 @@ Means <- ddply(ThermalFroBox, c("daysBack","thermap_presence"),summarise,
 
 
 msl <- ggplot(Means, aes(daysBack, mean)) +
-  geom_line(aes(group = as.factor(thermap_presence),color = as.factor(thermap_presence)),size = 1)+
+  geom_line(aes(group = as.factor(thermap_presence),color = as.factor(thermap_presence)),linewidth = 1)+
   scale_color_manual(values=c("#c70428","#087d8a"))+
   geom_point()+
   geom_errorbar(
@@ -152,7 +222,7 @@ Means <- ddply(ThermalFroBox, c("daysBack","thermap_presence"),summarise,
                se=sd(tcc)/length(tcc))
 
 cloadcove <-  ggplot(Means, aes(daysBack, mean)) +
-  geom_line(aes(group = as.factor(thermap_presence),color = as.factor(thermap_presence)),size = 1)+
+  geom_line(aes(group = as.factor(thermap_presence),color = as.factor(thermap_presence)),linewidth = 1)+
   scale_color_manual(values=c("#c70428","#087d8a"))+
   geom_point()+
   geom_errorbar(
@@ -172,7 +242,7 @@ Means <- ddply(ThermalFroBox, c("daysBack","thermap_presence"),summarise,
                se=sd(tw)/length(tw))
 
 TailWind <-  ggplot(Means, aes(daysBack, mean),group = as.factor(thermap_presence)) +
-  geom_line(aes(group = as.factor(thermap_presence),color = as.factor(thermap_presence)),size = 1)+
+  geom_line(aes(group = as.factor(thermap_presence),color = as.factor(thermap_presence)),linewidth = 1)+
   scale_color_manual(values=c("#c70428","#087d8a"))+
   geom_point()+
   geom_errorbar(
@@ -185,14 +255,28 @@ TailWind <-  ggplot(Means, aes(daysBack, mean),group = as.factor(thermap_presenc
 
 
 
-#== plot all together (Figure 4A)
+#== plot all together
+
+ggarrange(delta_t,msl,cloadcove,precip,TailWind,
+          ncol = 1, nrow = 5,
+          align = "v")
+
+
 
 
 
 ggarrange(delta_t,msl,cloadcove,precip,TailWind,
           heights = c(3,3,3),
           widths = c(3,3,3),
+          labels = c("(a)", "(b)", "(c)","(d)","(e)"),
           ncol = 1, nrow = 5,
+          align = "v")
+
+ggarrange(t_air,msl,cloadcove,precip,
+          heights = c(3,3,3),
+          widths = c(3,3,3),
+          labels = c("(a)", "(b)", "(c)","(d)"),
+          ncol = 1, nrow = 4,
           align = "v")
 
 
@@ -203,8 +287,8 @@ ggarrange(delta_t,msl,cloadcove,precip,TailWind,
 ##########################################################################################################
 
 # create the database
-InSeaOnly=ThermalFroBox[ThermalFroBox$time_point=="in sea",c(1,2,4,5,26,19,18,31,33)]
-InSeaOnly$daysBack1<-factor(InSeaOnly$daysBack,labels=c("t1","t2","t3","t4","t5"))
+InSeaOnly=ThermalFroBox
+InSeaOnly$daysBack1<-factor(ThermalFroBox$daysBack,labels=c("t1","t2","t3","t4","t5"))
 
 InSeaOnly$id[InSeaOnly$thermap_presence=="No-thermals"& InSeaOnly$daysBack==0]<-1:15
 InSeaOnly$id[InSeaOnly$thermap_presence=="No-thermals"& InSeaOnly$daysBack==1]<-1:15
@@ -374,9 +458,8 @@ one.way2
 
 #-(3.3)--make Dunnett Test only on the significant group
 bbThermals<-InSeaOnly[InSeaOnly$thermap_presence=="thermals",]
-bbNoThermals<-InSeaOnly[InSeaOnly$thermap_presence=="No-thermals",]
 DunnettTest(tcc~daysBack, data=bbThermals,control="0")
-DunnettTest(tcc~daysBack, data=bbNoThermals,control="0")
+
 
 ##################
 #--(b)-precipitation
