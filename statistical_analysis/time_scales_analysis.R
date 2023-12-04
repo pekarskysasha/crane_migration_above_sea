@@ -70,46 +70,6 @@ for (z in 1:nrow(ToEraze)) {
 
 ThermalFroBox$thermap_presence<-factor(ThermalFroBox$thermap_presence,labels=c("No-thermals","thermals"))
 
-uniquqCraneDates1 <- unique(ThermalFroBox[, c("indev", "Date","thermap_presence")])
-for(t in 1:nrow(uniquqCraneDates1)){
-  IND<-TS$Individual==uniquqCraneDates1$indev[t] & TS$dateOnly==uniquqCraneDates1$Date[t]
-  temp<-TS[IND,]
-  number_of_theramsl_sect <- sum(temp$percent_time_in_thermals>0 & temp$OverSea>0)
-  number_of_theramsls <- sum(temp$number_of_thermals[temp$OverSea>0])
-  uniquqCraneDates1$number_of_theramsl_sect[t] <- number_of_theramsl_sect
-  uniquqCraneDates1$number_of_theramsls[t] <- number_of_theramsls
-}
-#----------------------------------------------------------
-
-  
-  
-# - remove  days the crane was not present at the stopover
-uniquqCraneDates <- unique(ThermalFroBox[, c("indev", "Date")])
-rm(ThermalFroBox1) 
-for (i in 1:nrow(uniquqCraneDates)) {
-  days_at_stopver <- W$Days_at_stopover[W$indev==uniquqCraneDates$indev[i] &
-                                          W$Date==uniquqCraneDates$Date[i]]
-  
-  temp <- ThermalFroBox[ThermalFroBox$indev == uniquqCraneDates$indev[i] &
-                          ThermalFroBox$Date == uniquqCraneDates$Date[i],]
-  
-  if (days_at_stopver>2) {
-    temp=temp
-  } else if (days_at_stopver==2) {
-    temp=temp[1:4,]
-  }else if (days_at_stopver==1) {
-    temp=temp[1:3,]
-  }
-  
-  if(i==1){
-    ThermalFroBox1 <-temp
-  }else{
-    ThermalFroBox1 <-rbind(ThermalFroBox1,temp)
-  }
-  
-}
-
-ThermalFroBox <-  ThermalFroBox1
 ddply(ThermalFroBox, c('daysBack',"thermap_presence"),summarise, N= length(sstdiff))
 ddply(ThermalFroBox, c("Date","thermap_presence"),summarise, N    = length(sstdiff))
 
