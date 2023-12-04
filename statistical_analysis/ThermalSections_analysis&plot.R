@@ -128,47 +128,69 @@ prop<-ggplot(a3, aes(x=areaGlob, y=propThermal, fill=Season)) +
   scale_y_continuous(breaks=seq(0,1,0.5), limits=c(0, 1))+
   theme(axis.text.y = element_text(size=17),
         axis.title.x=element_blank(),axis.title.y=element_text(size=15),axis.text.x = element_blank()) 
-#_____________________________________________________________________________________
 
 #==========================================================================
-#-- statistical analysis using Chi-squared Marascuilo procedure 
+#-- statistical analysis using binomial Generalized Linear Mixed Model (GLMM) 
 #==========================================================================
-#- https://www.datacamp.com/community/tutorials/contingency-analysis-r
-# for marascuilo function 
-#https://medium.com/@datalackey/assessing-which-of-a-series-of-pairwise-combinations-significantly-differ-via-the-marascuilo-9db9fa17493d
+# Full model
+m1<-glmer(thermalPresense ~ areaGlob*Season  +
+            (1|Individual),
+          data=TS,
+          family=binomial(link = "logit"))
 
-source("marascuilo.R")
-#--(3.1)--divided by regions only------------------------
+summary(m1)
+library(emmeans)
 
-Props <- ddply(TS, c("areaGlob"),summarise, 
-               thermalPresence = sum(thermalPresense),
-               thermalabsence = length(thermalPresense)-sum(thermalPresense))
-Props$Name <- Props$areaGlob
-Props <- Props[,c(4,2,3)]
-Props_F <- data.frame(t(Props[-1]))
-colnames(Props_F) <- Props[, 1]
+#====Likelihood Ratio Tests (LRTs)==============================
 
-chisq.test(Props_F)
-marascuilo(Props_F) 
+# Without areaGlob
+m3 <- glmer(thermalPresense ~ Season + (1|Individual),
+            data=TS, family=binomial(link = "logit"))
 
-#--(3.2)--divided to fall and spring----------------------------
-Props <- ddply(TS, c("areaGlob","Season"),summarise, 
-               thermalPresence = sum(thermalPresense),
-               thermalabsence = length(thermalPresense)-sum(thermalPresense))
-Props$Name <- paste(Props$areaGlob, "-", Props$Season)
-Props <- Props[,c(5,3,4)]
+# Without Season
+m4 <- glmer(thermalPresense ~ areaGlob  + (1|Individual),
+            data=TS, family=binomial(link = "logit"))
 
-#--(A) first we do a general Chi-squared contingency table analyses 
-A<-Props[,c(2,3)]
-rownames(A) <- Props[, 1]
-chisq.test(A)
-#--(B) post-hoc pairwise comparisons were calculated using the Marascuilo procedure 
-Props_F <- data.frame(t(Props[-1]))
-colnames(Props_F) <- Props[, 1]
-marascuilo(Props_F) 
-#--* post hoc can be also performed using pairwise.prop.test
-Props_FF<-t(Props_F)
-pairwise.prop.test(Props_FF)
+# Model without the interaction
+m2 <- glmer(thermalPresense ~ areaGlob + Season + (1|Individual),
+            data=TS, family=binomial(link = "logit"))
+# Perform LRTs
+anova(m1, m3)  # Test significance of areaGlob
+anova(m1, m4)  # Test significance of Season
+anova(m1, m2)  # Test significance of interaction (as previously shown)
+#====post hoc===================================================
+
+
+#-(a) Calculate estimated marginal means for areas (North, Desert, Sea): 
+#--- What is the average presence of thermal soaring in each area, 
+#----------adjusting for the fact that different seasons might have different soaring conditions?
+# Estimate marginal means
+emm <- emmeans(m1, specs = ~ areaGlob*Season)
+# Pairwise comparisons for Season within each areaGlob
+pairs(emm, by = "areaGlob",adjust = "Tukey")
+
+
+#-(b) estimated marginal means for each area, adjusted for season
+#--- it gives a warning: Results may be misleading due to involvement in interactions
+#---- this is because: the estimated marginal means for 'areaGlob' alone might be 
+#-----------misleading because they don't capture the varying effects across different seasons
+emm_areas <- emmeans(m1, specs = ~ areaGlob)
+pairs(emm_areas)
+#===== show the estimated means===============================================
+#-(c) pairwise comparisons within each season separately 
+#----- compare North, Desert, and Sea within Fall, and then separately compare North, Desert, and Sea within Spring
+emm_season <- emmeans(m1, specs = pairwise ~ areaGlob | Season)
+summary(emm_season, adjust = "Holm")
+emm_season_df <- as.data.frame(emm_season)
+emm_season_df$emmean <- exp(emm_season_df$emmean) / (1 + exp(emm_season_df$emmean))  # Back-transform from logit scale
+emm_season_df$SE <- exp(emm_season_df$SE) / (1 + exp(emm_season_df$SE)) # Back-transform from logit scale
+
+#-(d) pairwise comparisons within each area separately 
+emm_area <- emmeans(m1, specs = pairwise ~ Season | areaGlob)
+summary(emm_area, adjust = "Holm")
+emm_area_df <- as.data.frame(emm_area)
+emm_area_df$emmean <- exp(emm_area_df$emmean) / (1 + exp(emm_area_df$emmean))  # Back-transform from logit scale
+emm_area_df$SE <- exp(emm_area_df$SE) / (1 + exp(emm_area_df$SE))  # Back-transform from logit scale
 
 #==========================================================================
 # [B] Porportion of thermal sections during day and night ----------------
@@ -206,6 +228,7 @@ Sumstat <- ddply(TStripWithThermal, c("areaGlob"),summarise,
 
 mean(Sumstat$thermalPresence[Sumstat$areaGlob!="Sea"])/Sumstat$thermalPresence[Sumstat$areaGlob=="Sea"]    
 
+
 #______FIGURE 2B bottom_______________________________________________________________________
 
 propsoar<-ggplot(aes(x=areaGlob, y=PropThermalTime, fill=areaGlob),data=TStripWithThermal) +
@@ -219,22 +242,13 @@ propsoar<-ggplot(aes(x=areaGlob, y=PropThermalTime, fill=areaGlob),data=TStripWi
   theme(axis.text.y = element_text(size=17),
         axis.title.x=element_blank(),axis.title.y=element_text(size=15),axis.text.x = element_blank()) 
 #_____________________________________________________________________________________
-
-#-- statistical analysis Chi-squared Marascuilo procedure 
-Props <- ddply(TStripWithThermal, c("areaGlob"),summarise, 
-               thermalPresence = sum(time_in_thermals_sec),
-               thermalabsence = sum(NumberOfThermalSection)*600-sum(time_in_thermals_sec))
-Props$Name <- Props$areaGlob
-Props <- Props[,c(4,2,3)]
-Props_F <- data.frame(t(Props[-1]))
-colnames(Props_F) <- Props[, 1]
-chisq.test(Props_F)
-marascuilo(Props_F) 
-
-#-- statistical analysis using ART-Anova -  allowed to distinguish significance levels in post-hoc
+#==========================================================================
+#-- statistical analysis using using ART-Anova -  allowed to distinguish significance levels in post-hoc
+#==========================================================================
+ 
 m1 = art(PropThermalTime ~ areaGlob  + (1|Individual), data=TStripWithThermal)
 anova(m1)
-CompM1=contrast(emmeans(artlm(m1, "areaGlob"), ~ areaGlob), method="pairwise",pbkrtest.limit = 3412)
+CompM1=contrast(emmeans(artlm(m1, "areaGlob"), ~ areaGlob), method="pairwise", adjust = "tukey",pbkrtest.limit = 3412)
 
 #==========================================================================
 # [D] Air speed ------------------------------------------------------------
@@ -259,10 +273,20 @@ TS1<- TS0[TS0$va > low & TS0$va < up,]
 library(ggstatsplot)
 
 
-ddply(TS1, c("thermalPresense"),summarise, 
+summary_speed<- ddply(TS1, c("thermalPresense"),summarise, 
       N    = length(va),
       Average_va= mean(va),
-      sd_va=sd(va))
+      sd_va=sd(va),
+      Average_vg= mean(vg),
+      sd_vg=sd(vg))
+
+
+ggplot(TS1) +
+  geom_histogram(aes(x=va),fill="red", alpha=0.3, position="identity",bins = 50)+
+  geom_histogram(aes(x=vg),fill="blue", alpha=0.3, position="identity",bins = 50)
+
+ggplot(TS1) +
+  geom_histogram(aes(x=tw),fill="green", alpha=0.7, position="identity",bins = 50)
 
 TS1Agregate<- ddply(TS1, c("Individual","UniqueSectionCounter","thermalPresense"),summarise, 
                     N    = length(va),
@@ -271,6 +295,18 @@ TS1Agregate<- ddply(TS1, c("Individual","UniqueSectionCounter","thermalPresense"
 m = art(Average_va ~ thermalPresense  + (1|Individual), data=TS1Agregate)
 anova(m)
 
+ggplot(aes(x=thermalPresense, y=Average_va),data=TS1Agregate) +
+  geom_boxplot(outlier.shape = NA,alpha = 0.9, colour = "black",fatten = 5)+
+  geom_point(aes(fill=Individual),shape = 21,alpha = 0.3, size=2,position=position_jitter(0.1))+
+  theme_bw()+
+  theme(axis.text.y = element_text(size=17),
+        axis.title.x=element_blank(),axis.title.y=element_text(size=15)) 
+
+
+
+ggplot(TS1, aes(x=va, y=vg, color=thermalPresense)) +
+  geom_point(size=2)
+  
 #==========================================================================
 # [C] Invirometal variables influence on probabilty of thermal cycling in sea----------
 #==========================================================================
@@ -340,7 +376,7 @@ Thermal_Sea$delta_T <- TS_Sea$Mean_DeltaT
 Thermal_Sea$thermalPresense <- TS_Sea$thermalPresense
 Thermal_Sea$sea <- TS_Sea$areaGlob2
 names(Thermal_Sea)[names(Thermal_Sea) == "TS_Sea$time_in_thermals_sec"] <- "time_in_thermals_sec"
-
+Thermal_Sea$wind_direction <- TS_Sea$wang
 #- (4) Z-Scores Standardizing --------------------------
 #---see here: https://www.r-bloggers.com/2018/04/z-is-for-z-scores-and-standardizing/
 Thermal_Sea[c(8:9)]<-lapply(Thermal_Sea[c(8:9)], function(x) {
@@ -350,7 +386,7 @@ Thermal_Sea[c(8:9)]<-lapply(Thermal_Sea[c(8:9)], function(x) {
 
 #--(III)-- check correlation between variables------------------------------
 #== (1) METHOD 1 ====
-mydata <-Thermal_Sea[,5:10]
+mydata <-Thermal_Sea[,c(5:9)]
 library(corrplot)
 mydata.cor = cor(mydata, method = c("pearson"))
 corrplot(mydata.cor)
@@ -386,6 +422,7 @@ m1<-glmer(thermalPresense ~ wind_speed + delta_T + sea_level_pressure + age +
           family=binomial(link = "logit"))
 
 summary(m1)
+
 
 # proportion of variance explained (Nakagawa and Schielzeth)
 #-- marginal: variance explained by the fixed effects
